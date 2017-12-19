@@ -12,6 +12,7 @@ import {
     Image
 } from 'react-native';
 import { defaultStyles } from './styles';
+import Options from './Options';
 
 const { width, height } = Dimensions.get('window');
 const defaultHeight = height * 0.69;
@@ -204,9 +205,17 @@ export default class MoviePopup extends Component{
 
                         <View>
                             <Text style={styles.sectionHeader}>Day</Text>
-                            <Text>Add day options here</Text>
+                            <Options
+                                values={days}
+                                chosen={chosenDay}
+                                onChoose={onChooseDay}
+                            />
                             <Text style={styles.sectionHeader}>Showtime</Text>
-                            <Text>Add show time options here</Text>
+                            <Options 
+                                values={times}
+                                chosen={chosenTime}
+                                onChoose={onChooseTime}
+                            />
                         </View>
 
                         <View style={styles.footer}>
