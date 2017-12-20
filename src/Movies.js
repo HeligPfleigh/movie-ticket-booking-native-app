@@ -4,10 +4,9 @@ import { movies } from './data';
 import MoviePoster from './MoviePoster';
 import MoviePopup from './MoviePopup';
 
+import { Actions } from 'react-native-router-flux';
+
 export default class Movies extends React.Component{
-    static navigationOptions = {
-        title: 'Welcome'
-    };
 
     constructor(){
         super();
@@ -45,6 +44,17 @@ export default class Movies extends React.Component{
         })
     }
 
+    bookTicket = () => {
+        if(!this.state.chosenTime){
+            alert('Please select show time');
+        }
+        else{
+            this.closeMovie();
+            let code = Math.random().toString(36).substring(6).toUpperCase();
+            Actions.confimation({code : code});
+        }
+    }
+
     render(){
         return (
             <View style={styles.container}>
@@ -71,6 +81,7 @@ export default class Movies extends React.Component{
                     chosenTime={this.state.chosenTime}
                     onChooseDay={this.chooseDay}
                     onChooseTime={this.chooseTime}
+                    onBook={this.bookTicket}
                 />
             </View>
         )
