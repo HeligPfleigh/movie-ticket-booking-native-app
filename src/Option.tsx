@@ -1,22 +1,26 @@
-import React, { Component } from 'react';
-import {
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
-import { defaultStyles } from './styles';
+import React, { Component } from "react";
+import { Animated, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { defaultStyles } from "./styles";
 
 // Colors for smooth transition when user chosess an option
-const colorDefault = 'rgba(255, 255, 255, 1)',  // white
-  colorSelected = 'rgba(103,58,183, 1)';        // purple
+const colorDefault = "rgba(255, 255, 255, 1)", // white
+  colorSelected = "rgba(103,58,183, 1)"; // purple
 
-export default class Options extends Component {
+interface IOptionsProps {
+  isChosen: boolean;
+  value?: string;
+  onChoose: () => void;
+}
 
+interface IOptionsStates {
+  background: Animated.Value;
+}
+
+export default class Options extends Component<IOptionsProps, IOptionsStates> {
   state = {
     // Animate background color change when value gets chosen
-    background: new Animated.Value(0)
-  }
+    background: new Animated.Value(0),
+  };
 
   // Animate option selection if value was already chosen not by a user
   componentWillMount() {
@@ -26,7 +30,7 @@ export default class Options extends Component {
   }
 
   // Handle isChosen prop changes
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: IOptionsProps) {
     if (!this.props.isChosen && nextProps.isChosen) {
       this.animateSelect();
     } else if (this.props.isChosen && !nextProps.isChosen) {
@@ -38,6 +42,7 @@ export default class Options extends Component {
     Animated.timing(this.state.background, {
       toValue: 100,
       duration: 200,
+      useNativeDriver: false,
     }).start();
   }
 
@@ -45,6 +50,7 @@ export default class Options extends Component {
     Animated.timing(this.state.background, {
       toValue: 0,
       duration: 200,
+      useNativeDriver: false,
     }).start();
   }
 
@@ -55,12 +61,12 @@ export default class Options extends Component {
       outputRange: [colorDefault, colorSelected],
     });
     return (
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onChoose}
-      >
+      <TouchableOpacity activeOpacity={1} onPress={onChoose}>
         <Animated.View
-          style={[styles.container, { backgroundColor: backgroundColorAnimation }]}
+          style={[
+            styles.container,
+            { backgroundColor: backgroundColorAnimation },
+          ]}
         >
           <Text style={{ color: isChosen ? colorDefault : colorSelected }}>
             {value}
@@ -69,12 +75,11 @@ export default class Options extends Component {
       </TouchableOpacity>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
+    alignItems: "center",
     borderColor: colorSelected,
     borderWidth: 1,
     borderRadius: 10,
@@ -83,5 +88,5 @@ const styles = StyleSheet.create({
   },
   text: {
     ...defaultStyles.text,
-  }
+  },
 });
