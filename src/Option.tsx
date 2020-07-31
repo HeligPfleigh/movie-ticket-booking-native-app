@@ -17,29 +17,28 @@ interface IOptionsStates {
 }
 
 export default class Options extends Component<IOptionsProps, IOptionsStates> {
-  state = {
-    // Animate background color change when value gets chosen
-    background: new Animated.Value(0),
-  };
+  _background: Animated.Value;
 
-  // Animate option selection if value was already chosen not by a user
-  componentWillMount() {
+  constructor(props: IOptionsProps) {
+    super(props);
+    this._background = new Animated.Value(0);
+    // Animate option selection if value was already chosen not by a user
     if (this.props.isChosen) {
       this.animateSelect();
     }
   }
 
   // Handle isChosen prop changes
-  componentWillReceiveProps(nextProps: IOptionsProps) {
-    if (!this.props.isChosen && nextProps.isChosen) {
-      this.animateSelect();
-    } else if (this.props.isChosen && !nextProps.isChosen) {
+  componentDidUpdate(prevProps: IOptionsProps) {
+    if (!this.props.isChosen && prevProps.isChosen) {
       this.animateDeselect();
+    } else if (this.props.isChosen && !prevProps.isChosen) {
+      this.animateSelect();
     }
   }
 
   animateSelect() {
-    Animated.timing(this.state.background, {
+    Animated.timing(this._background, {
       toValue: 100,
       duration: 200,
       useNativeDriver: false,
@@ -47,7 +46,7 @@ export default class Options extends Component<IOptionsProps, IOptionsStates> {
   }
 
   animateDeselect() {
-    Animated.timing(this.state.background, {
+    Animated.timing(this._background, {
       toValue: 0,
       duration: 200,
       useNativeDriver: false,
@@ -56,7 +55,7 @@ export default class Options extends Component<IOptionsProps, IOptionsStates> {
 
   render() {
     const { value, isChosen, onChoose } = this.props;
-    const backgroundColorAnimation = this.state.background.interpolate({
+    const backgroundColorAnimation = this._background.interpolate({
       inputRange: [0, 100],
       outputRange: [colorDefault, colorSelected],
     });

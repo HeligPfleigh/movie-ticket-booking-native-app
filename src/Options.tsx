@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Dimensions, View, ScrollView, StyleSheet, Text } from "react-native";
+import { Dimensions, View, ScrollView, StyleSheet } from "react-native";
 
 import Option from "./Option";
 
@@ -8,7 +8,7 @@ const optionWidth = (width - 0) / 3 - 10;
 
 interface IOptionsProps {
   values: string[];
-  chosen: number;
+  chosen: number | string | null;
   onChoose: (id: number) => void;
 }
 

@@ -22,11 +22,11 @@ const defaultHeight = height * 0.69;
 interface IMoviePopupProps {
   isOpen: boolean;
   onClose: () => void;
-  movie: Movie;
+  movie?: Movie;
   chosenDay: number;
-  chosenTime: number;
+  chosenTime: string | null;
   onChooseDay: (id: number) => void;
-  onChooseTime: (id: number) => void;
+  onChooseTime: (id: string) => void;
   onBook: () => void;
 }
 
@@ -41,20 +41,15 @@ export default class MoviePopup extends Component<
   IMoviePopupProps,
   IMoviePopupStates
 > {
-  state = {
-    position: new Animated.Value(this.props.isOpen ? 0 : height),
-    visible: this.props.isOpen,
-    opacity: new Animated.Value(0),
-    height: defaultHeight,
-    expanded: false,
-  };
+  constructor(props: IMoviePopupProps) {
+    super(props);
+    this.state = {
+      position: new Animated.Value(this.props.isOpen ? 0 : height),
+      visible: this.props.isOpen,
+      height: defaultHeight,
+      expanded: false,
+    };
 
-  _previousHeight = 0;
-
-  _panResponder: PanResponderInstance | undefined;
-
-  componentWillMount() {
-    // Initialize PanResponder to handle move gestures
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -106,13 +101,22 @@ export default class MoviePopup extends Component<
         return true;
       },
     });
+
+    this._previousHeight = 0;
+    this._opacity = new Animated.Value(0);
   }
 
-  componentWillReceiveProps(nextProps: IMoviePopupProps) {
-    if (!this.props.isOpen && nextProps.isOpen) {
-      this.animateOpen();
-    } else if (this.props.isOpen && !nextProps.isOpen) {
+  _previousHeight: number;
+
+  _opacity: Animated.Value;
+
+  _panResponder: PanResponderInstance;
+
+  componentDidUpdate(prevProps: IMoviePopupProps) {
+    if (!this.props.isOpen && prevProps.isOpen) {
       this.animateClose();
+    } else if (this.props.isOpen && !prevProps.isOpen) {
+      this.animateOpen();
     }
   }
 
@@ -124,7 +128,7 @@ export default class MoviePopup extends Component<
           useNativeDriver: true,
         }),
 
-        Animated.timing(this.state.opacity, {
+        Animated.timing(this._opacity, {
           toValue: 0.5,
           useNativeDriver: true,
         }),
@@ -138,13 +142,12 @@ export default class MoviePopup extends Component<
         toValue: height,
         useNativeDriver: true,
       }),
-      Animated.timing(this.state.opacity, {
+      Animated.timing(this._opacity, {
         toValue: 0,
         useNativeDriver: true,
       }),
     ]).start(() =>
       this.setState({
-        height: defaultHeight,
         expanded: false,
         visible: false,
       })
@@ -196,7 +199,7 @@ export default class MoviePopup extends Component<
       onChooseTime,
       onBook,
     } = this.props;
-    const { title, genre, poster, days, times } = movie || {};
+    const { title, genre, poster, days = [], times = [] } = movie || {};
 
     if (!this.state.visible) return null;
 
@@ -204,7 +207,7 @@ export default class MoviePopup extends Component<
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={this.props.onClose}>
           <Animated.View
-            style={[styles.backdrop, { opacity: this.state.opacity }]}
+            style={[styles.backdrop, { opacity: this._opacity }]}
           />
         </TouchableWithoutFeedback>
         <Animated.View
@@ -221,7 +224,10 @@ export default class MoviePopup extends Component<
         >
           <View style={styles.content}>
             <View
-              style={[styles.movieContainer, this.getStyles().movieContainer]}
+              style={[
+                styles.movieContainer,
+                this.getStyles().movieContainer as any,
+              ]}
               {...this._panResponder?.panHandlers}
             >
               <View
@@ -229,8 +235,10 @@ export default class MoviePopup extends Component<
               >
                 <Image style={[styles.image]} source={{ uri: poster }} />
               </View>
-              <View style={[styles.movieInfo, this.getStyles().movieInfo]}>
-                <Text style={[styles.title, this.getStyles().title]}>
+              <View
+                style={[styles.movieInfo, this.getStyles().movieInfo as any]}
+              >
+                <Text style={[styles.title, this.getStyles().title as any]}>
                   {title}
                 </Text>
                 <Text style={[styles.genre]}>{genre}</Text>
@@ -248,7 +256,7 @@ export default class MoviePopup extends Component<
               <Options
                 values={times}
                 chosen={chosenTime}
-                onChoose={onChooseTime}
+                onChoose={onChooseTime as any}
               />
             </View>
 
