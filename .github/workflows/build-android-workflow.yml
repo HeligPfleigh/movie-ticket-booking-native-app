@@ -1,0 +1,32 @@
+name: Build Android Artifact
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Android builder
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install npm dependencies
+        run: |
+          npm install
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.0
+        with:
+          # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x). Early access versions can be specified in the form of e.g. 14-ea, 14.0.0-ea, or 14.0.0-ea.28
+          java-version: 1.8
+      - name: Build Android Release
+        run: |
+          cd android && ./gradlew assembleDebug
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
